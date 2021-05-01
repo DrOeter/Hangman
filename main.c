@@ -3,14 +3,14 @@
 #include <windows.h>
 #include <string.h>
 #include <time.h>
+#include "main.h"
 
 #define MAX 100
+size_t signal = 0;
 
 typedef struct{
     char user[MAX][MAX];
-    
     int pos;
-
 }data;
 
 struct letters{
@@ -18,6 +18,26 @@ struct letters{
     char c_letters[26];
     char used_letters[26];
 }words[2];
+
+DWORD WINAPI Thread(void* data) {
+    size_t limit = (size_t)data;
+    clock_t now = clock();
+
+    while(1){
+        clock_t later = clock();
+        //printf("Time: %ld   %d\n", now, limit);
+        if(signal == 0 && limit > 0 && (limit * 60000) < (later - now)) {
+            printf("Zeitlimit überschritten\nVerloren :(");
+            exit(0);
+        }        
+        if(signal == 1 && limit == 0) {
+            printf("Vergangene Zeit: %ld \n", (later - now));
+            exit(0);
+        }
+        //Sleep(1000);
+    }
+    return 0;
+}
 
 data *userArray(FILE *fp){
     char test[MAX] = "yee",buff[MAX] = "eey";
@@ -80,8 +100,8 @@ int main(){
     printf("%s\n", (&words[1])->c_letters);
     printf("%s\n", (&words[1])->alphabet);
 
-    size_t pl_count, time_limit, lines = 0, len = 0, equal[2];
-    char player1[20], player2[20], used_letters[26] = "", time_mode, tip, listuser;
+    size_t pl_count, time_limit = 0, lines = 0, len = 0, equal[2];
+    char player1[20], player2[20], time_mode, tip, listuser;
     char *line = NULL;
     ssize_t read;
     equal[0]=0,equal[1]=0;
@@ -229,11 +249,22 @@ int main(){
 
     printf("\n\nrandom: %s num: %d\n", line, num);
 
-    size_t tries = 0 ,c_tries = 0, letter[2], mode = 0;
-    letter[0] = 0, letter[1] = 0; 
+    size_t tries[2] ,c_tries[2], letter[2], mode = 0, stage[2];
+    letter[0] = 0, letter[1] = 0;
+    stage[0] = 1, stage[1] = 1; 
+    c_tries[0] = 0, c_tries[1] = 0;
+    tries[0] = 0, tries[1] = 0;
 
+    system("cls");
+
+    HANDLE thread;
+    
+    if(time_mode == 'j')  thread = CreateThread(NULL, 0, Thread, (void*)time_limit, 0, NULL);
+    if(time_mode == 'n')  thread = CreateThread(NULL, 0, Thread, NULL, 0, NULL);
+    
 
     while(1){
+        size_t correct = 0, complete = 1;
         //buchstaben nach alphabet
         //Versuche und richtige Versuche
         if(pl_count == 1) printf("Mache einen Tipp\n> ");
@@ -244,8 +275,8 @@ int main(){
         size_t at = find_c((&words[ mode ])->alphabet, 26, tip);
         size_t guess = find_c(line, read, tip);
         
-        if( guess > 0 ) c_tries++;
-        if( guess == 0 ) tries++;
+        if( guess > 0 ) c_tries[ mode ]++;
+        if( guess == 0 ) tries[ mode ]++;
         
         if( (&words[ mode ])->alphabet[ at - 1 ] == '0' || at == 0 ) {
             printf("Buchstabe wurde schon benutzt!\n");
@@ -254,25 +285,59 @@ int main(){
         else if( (&words[ mode ])->alphabet[ at - 1 ] != '0' ) {
             (&words[ mode ])->used_letters[letter[ mode ]] = (&words[ mode ])->alphabet[ at - 1 ];
             for(int i=0; i < read;i++)
-                if(line[i] == tip) (&words[ mode ])->c_letters[i] = tip;
+                if(line[i] == tip){
+                    (&words[ mode ])->c_letters[i] = tip;
+                    correct = 1;
+                }
             
             (&words[ mode ])->alphabet[ at - 1 ] = '0';
             letter[ mode ]++;
         }
+        for(int i=0; i < read;i++){
+            if((&words[ mode ])->c_letters[i] == '_') complete = 0;
+        }
+
+        system("cls");
+        printf("%s\n\n", (&words[ mode ])->alphabet);
+
+        if(correct == 0) stage[ mode ]++;
+        printHangman(stage[ mode ]);
+        if( stage [mode] < 11 && mode == 0 && pl_count == 2){
+            printf("Spieler 2 gewinnt!!!\n");
+            break;
+        }
+        if( stage [mode] == 11 && mode == 1 && pl_count == 2){
+            printf("Spieler 1 gewinnt!!!\n");
+            break;
+        }
+        if( stage [mode] == 11 && mode == 0 && pl_count == 1){
+            printf("Verloren :(\n");
+            break;
+        }
+        if( complete == 1 && mode == 0 && pl_count == 2){
+            printf("Spieler 1 gewinnt!!!\n");
+            break;
+        }
+        if( complete == 1 && mode == 1 && pl_count == 2){
+            printf("Spieler 2 gewinnt!!!\n");
+            break;
+        }
+        if( complete == 1 && mode == 0 && pl_count == 1){
+            printf("Verloren :(\n");
+            break;
+        }
         
-        //printf("%c %d\n\n %s\n\n", alphabet[ at - 1 ], at - 1, used_letters);
 
         printf("\n\n%d %s  %s\n", guess, (&words[ mode ])->c_letters, (&words[ mode ])->used_letters);
 
-        if( pl_count == 2 ){
+        if( pl_count == 2 && correct == 0 ){
             if(mode == 0) mode = 1;
             else if(mode == 1) mode = 0;
         }
     }
 
-
-
-
+    signal = 1;
+    Sleep(1000);
 
     free( dat );
     return 0;
