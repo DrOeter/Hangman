@@ -9,10 +9,15 @@
 typedef struct{
     char user[MAX][MAX];
     
-
     int pos;
 
 }data;
+
+struct letters{
+    char alphabet[26];
+    char c_letters[26];
+    char used_letters[26];
+}words[2];
 
 data *userArray(FILE *fp){
     char test[MAX] = "yee",buff[MAX] = "eey";
@@ -60,8 +65,23 @@ int main(){
     //zweispieler
     //gegen zeit
     //spielername
+    char alphabet[26] = "abcdefghijklmnopqrstuvwxyz";
+
+
+    for(int i=0; i < 2;i++){
+        for(int ii=0; ii < 26;ii++){
+            (&words[i])->c_letters[ii] = '_';
+            (&words[i])->alphabet[ii] = alphabet[ii];
+        }
+    }
+
+    printf("%s\n", (&words[0])->c_letters);
+    printf("%s\n", (&words[0])->alphabet);
+    printf("%s\n", (&words[1])->c_letters);
+    printf("%s\n", (&words[1])->alphabet);
+
     size_t pl_count, time_limit, lines = 0, len = 0, equal[2];
-    char player1[20], player2[20], time_mode, tip, listuser;
+    char player1[20], player2[20], used_letters[26] = "", time_mode, tip, listuser;
     char *line = NULL;
     ssize_t read;
     equal[0]=0,equal[1]=0;
@@ -71,7 +91,7 @@ int main(){
 
     if (fWords == NULL || fUser == NULL) return 0;
 
-    srand(time(0));
+    srand(time(NULL));
 
     printf("Hangman Game:\n\nEin oder Zwei Spieler?\n> ");
     scanf("%d", &pl_count);
@@ -82,9 +102,10 @@ int main(){
     printf("Benutzer anzeigen? (j/n)\n> ");
     scanf(" %c", &listuser);
 
+    data *dat = userArray(fUser);
+
     if(pl_count == 1 && listuser == 'j'){
         const char user[20];
-        data *dat = userArray(fUser);
 
         for(int i=0;i < dat->pos - 1;i++){
             nullNewline( dat->user[i] );
@@ -111,7 +132,6 @@ int main(){
     }
     else if(pl_count == 2 && listuser == 'j'){
         char user1[20], user2[20];
-        data *dat = userArray(fUser);
 
         for(int i=0;i < dat->pos - 1;i++){
             nullNewline( dat->user[i] );
@@ -149,7 +169,7 @@ int main(){
         }
     }
 
-    
+    fseek(fUser, 0, SEEK_END);
 
     if(pl_count == 1 && listuser == 'n'){
         printf("Gebe Spielernamen ein\n> ");
@@ -171,8 +191,6 @@ int main(){
     
     fclose(fUser);
     
-    
-
     printf("Gegen die Zeit? (j/n)\n> ");
     scanf(" %c", &time_mode);
 
@@ -181,12 +199,7 @@ int main(){
         scanf("%d", &time_limit);
     }
 
-    //printf("\033[2J");
-    //printf("\033[%d;%dH", 0, 0);
-
     //printf("anz: %d\npl1: %s\npl2 %s\nmode: %c\nlimit: %d\n", pl_count, player1, player2, time_mode, time_limit);
-
-
 
     while(!feof(fWords)){
         char ch = fgetc(fWords);
@@ -209,21 +222,58 @@ int main(){
 
     line[read - 1]= '\0';
 
+    for(ssize_t i = read - 1; i < 26;i++){
+        (&words[0])->c_letters[i] = '\0'; 
+        (&words[1])->c_letters[i] = '\0';  
+    }    
+
     printf("\n\nrandom: %s num: %d\n", line, num);
 
+    size_t tries = 0 ,c_tries = 0, letter[2], mode = 0;
+    letter[0] = 0, letter[1] = 0; 
 
 
-    while(0){
-        printf("Mache einen Tipp\n> ");
+    while(1){
+        //buchstaben nach alphabet
+        //Versuche und richtige Versuche
+        if(pl_count == 1) printf("Mache einen Tipp\n> ");
+        if(pl_count == 2 && mode == 0) printf("Spieler 1 mache einen Tipp\n> ");
+        if(pl_count == 2 && mode == 1) printf("Spieler 2 mache einen Tipp\n> ");
         scanf(" %c", &tip);
 
-        printf("\n\n%d", find_c(line, read, tip));
+        size_t at = find_c((&words[ mode ])->alphabet, 26, tip);
+        size_t guess = find_c(line, read, tip);
+        
+        if( guess > 0 ) c_tries++;
+        if( guess == 0 ) tries++;
+        
+        if( (&words[ mode ])->alphabet[ at - 1 ] == '0' || at == 0 ) {
+            printf("Buchstabe wurde schon benutzt!\n");
+            continue;
+        }
+        else if( (&words[ mode ])->alphabet[ at - 1 ] != '0' ) {
+            (&words[ mode ])->used_letters[letter[ mode ]] = (&words[ mode ])->alphabet[ at - 1 ];
+            for(int i=0; i < read;i++)
+                if(line[i] == tip) (&words[ mode ])->c_letters[i] = tip;
+            
+            (&words[ mode ])->alphabet[ at - 1 ] = '0';
+            letter[ mode ]++;
+        }
+        
+        //printf("%c %d\n\n %s\n\n", alphabet[ at - 1 ], at - 1, used_letters);
+
+        printf("\n\n%d %s  %s\n", guess, (&words[ mode ])->c_letters, (&words[ mode ])->used_letters);
+
+        if( pl_count == 2 ){
+            if(mode == 0) mode = 1;
+            else if(mode == 1) mode = 0;
+        }
     }
 
 
 
 
 
-
+    free( dat );
     return 0;
 }
