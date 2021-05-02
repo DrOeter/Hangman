@@ -3,6 +3,7 @@
 #include <windows.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 #include "main.h"
 
 #define MAX 100
@@ -33,7 +34,12 @@ DWORD WINAPI Thread(void* data) {
 
     while(1){
         clock_t later = clock();
+        char used_letters[26] = "";
         //printf("Time: %ld   %d\n", now, limit);
+        for(int i=0,ii=0; i < strlen(WS used_letters);i++,ii+=2){
+            used_letters[ii] = toupper(WS used_letters[i]);
+            used_letters[ii + 1] = ' '; 
+        }       
         system("cls");
         if(SS mode == 0)printf("Spieler %d %s\n", SS mode + 1, SS player1);
         if(SS mode == 1)printf("Spieler %d %s\n", SS mode + 1, SS player2);
@@ -41,12 +47,22 @@ DWORD WINAPI Thread(void* data) {
         printf("__________________________\n\n");
         printf("%s\n", WS c_letters);
         printf("__________________________\n\n");
-        printf("Benutzte Buchstaben: %s\nVersuche: %d\nKorrekte Versuche: %d\n", WS used_letters, SS tries[ SS mode ], SS c_tries[ SS mode ]);
+        printf("Benutzte Buchstaben: %s\nVersuche: %d\nKorrekte Versuche: %d\n", used_letters, SS tries[ SS mode ], SS c_tries[ SS mode ]);
         printf("Vergangene Zeit: %ld\n> ", (later - now));
 
         if(signal == 0 && limit > 0 && (limit * 60000) < (later - now)) {
             printf("\n\nZeitlimit ueberschritten\nVerloren :(");
-            break;
+            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;""\x9a""berschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
+            if(SS pl_count == 2){
+               // printf("werte: %d %d %d\n",SS mode, SS complete[0], SS complete[1]);
+                fprintf(SS fUserdata, "%s;%s;%d;""\x9a""berschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
+                fprintf(SS fUserdata, "%s;%s;%d;""\x9a""berschritten: %d s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
+            }
+            fclose(SS fUserdata);
+            if(SS stage[0] < SS stage[1]) printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
+            if(SS stage[1] < SS stage[0]) printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
+            if(SS stage[0] == SS stage[1]) printf("\n\nUnentschieden\n");
+            exit(0);
         }        
         if(signal == 1 && limit == 0) {
             if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
@@ -273,12 +289,16 @@ int main(){
 
     line[read - 1]= '\0';
 
+    for(int i=0; i < read;i++)
+        SS word[i] = line[i];
+
+    for(int i=0; i < read;i++)
+        line[i] = tolower( line[i] );
+
     for(ssize_t i = read - 1; i < 26;i++){
         (&words[0])->c_letters[i] = '\0'; 
         (&words[1])->c_letters[i] = '\0';  
     }    
-    for(int i=0; i < read;i++)
-        SS word[i] = line[i];
 
     printf("\n\nrandom: %s num: %d\n", line, num);
 
@@ -288,15 +308,12 @@ int main(){
     SS c_tries[0] = 0, SS c_tries[1] = 0;
     SS tries[0] = 0, SS tries[1] = 0;
     SS complete[0] = 0,SS complete[1] = 0;
-    HANDLE thread;
     size_t correct = 0, complete = 1;
 
     system("cls");
-    
-    if(time_mode == 'j')  thread = CreateThread(NULL, 0, Thread, (void*)time_limit, 0, NULL);
-    if(time_mode == 'n')  thread = CreateThread(NULL, 0, Thread, NULL, 0, NULL);
-    
 
+    HANDLE thread = CreateThread(NULL, 0, Thread, (void*)time_limit, 0, NULL);
+    
     while(1){
         correct = 0, complete = 1;
         //buchstaben nach alphabet
@@ -363,19 +380,19 @@ int main(){
     Sleep(1000);
 
      if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 2){
-        printf("\n\nSpieler 2 gewinnt!!!\n");
+        printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
     }
     if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2){
-        printf("\n\nSpieler 1 gewinnt!!!\n");
+        printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
     }
     if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1){
         printf("\n\nVerloren :(\n");
     }
     if( complete == 1 && SS mode == 0 && pl_count == 2){
-        printf("\n\nSpieler 1 gewinnt!!!\n");
+        printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
     }
     if( complete == 1 && SS mode == 1 && pl_count == 2){
-        printf("\n\nSpieler 2 gewinnt!!!\n");
+        printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
     }
     if( complete == 1 && SS mode == 0 && pl_count == 1){
         printf("\n\nUeberlebt\n");
