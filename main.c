@@ -23,23 +23,25 @@ struct letters{
 }words[2];
 
 struct stat{
-    size_t tries[2] ,c_tries[2], letter[2], mode, stage[2], pl_count, complete[2];
+    size_t tries[2] ,c_tries[2], letter[2], mode, stage[2], pl_count, complete[2], correct[2];
+    double time_limit;
     char player1[20], player2[20], word[26];
     FILE *fUserdata;
 }stat;
 
 DWORD WINAPI Thread(void* data) {
-    size_t limit = (size_t)data;
     clock_t now = clock();
 
     while(1){
         clock_t later = clock();
         char used_letters[26] = "";
-        //printf("Time: %ld   %d\n", now, limit);
         for(int i=0,ii=0; i < strlen(WS used_letters);i++,ii+=2){
             used_letters[ii] = toupper(WS used_letters[i]);
             used_letters[ii + 1] = ' '; 
-        }       
+        }      
+        for(int i=0; i < strlen(WS used_letters);i++)
+            if(WS c_letters[i] != '_') WS c_letters[i] = toupper(WS c_letters[i]);
+
         system("cls");
         if(SS mode == 0)printf("Spieler %d %s\n", SS mode + 1, SS player1);
         if(SS mode == 1)printf("Spieler %d %s\n", SS mode + 1, SS player2);
@@ -50,28 +52,29 @@ DWORD WINAPI Thread(void* data) {
         printf("Benutzte Buchstaben: %s\nVersuche: %d\nKorrekte Versuche: %d\n", used_letters, SS tries[ SS mode ], SS c_tries[ SS mode ]);
         printf("Vergangene Zeit: %ld\n> ", (later - now));
 
-        if(signal == 0 && limit > 0 && (limit * 60000) < (later - now)) {
-            printf("\n\nZeitlimit ueberschritten\nVerloren :(");
-            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;""\x9a""berschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
+        if(signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {
+            if(SS pl_count == 1) printf("\n\nZeitlimit ueberschritten\nVerloren :(");
+            if(SS pl_count == 2) printf("\n\nZeitlimit ueberschritten\n");
+            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;Ueberschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
             if(SS pl_count == 2){
                // printf("werte: %d %d %d\n",SS mode, SS complete[0], SS complete[1]);
-                fprintf(SS fUserdata, "%s;%s;%d;""\x9a""berschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
-                fprintf(SS fUserdata, "%s;%s;%d;""\x9a""berschritten: %d s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
+                fprintf(SS fUserdata, "%s;%s;%d;Spieler 1 Ueberschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
+                fprintf(SS fUserdata, "%s;%s;%d;Spieler 2 Ueberschritten: %d s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
+                if(SS correct[1] < SS correct[0]) printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
+                if(SS correct[0] < SS correct[1]) printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
+                if(SS correct[0] == SS correct[1] ) printf("\n\nUnentschieden\n");
             }
             fclose(SS fUserdata);
-            if(SS stage[0] < SS stage[1]) printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
-            if(SS stage[1] < SS stage[0]) printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
-            if(SS stage[0] == SS stage[1]) printf("\n\nUnentschieden\n");
             exit(0);
         }        
-        if(signal == 1 && limit == 0) {
+        if(signal == 1 && SS time_limit == 0) {
             if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
             if(SS pl_count == 2){
                // printf("werte: %d %d %d\n",SS mode, SS complete[0], SS complete[1]);
                 if(SS complete[0] == 1 ) fprintf(SS fUserdata, "%s;%s;%d;%d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
                 if(SS complete[1] == 1 ) fprintf(SS fUserdata, "%s;%s;%d;%d s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
-                if(SS complete[0] == 0 ) fprintf(SS fUserdata, "%s;%s;%d;lost\n", SS player1, SS word, SS tries[ 0 ]);
-                if(SS complete[1] == 0 ) fprintf(SS fUserdata, "%s;%s;%d;lost\n", SS player2, SS word, SS tries[ 1 ]);
+                if(SS complete[0] == 0 ) fprintf(SS fUserdata, "%s;%s;%d;Spieler 1 verloren\n", SS player1, SS word, SS tries[ 0 ]);
+                if(SS complete[1] == 0 ) fprintf(SS fUserdata, "%s;%s;%d;Spieler 2 verloren\n", SS player2, SS word, SS tries[ 1 ]);
             }
             break;
         }
@@ -123,11 +126,7 @@ size_t find_c(char *in, ssize_t size, char c){
 }
 
 int main(){
-    //zweispieler
-    //gegen zeit
-    //spielername
     char alphabet[26] = "abcdefghijklmnopqrstuvwxyz";
-
 
     for(int i=0; i < 2;i++){
         for(int ii=0; ii < 26;ii++){
@@ -135,13 +134,8 @@ int main(){
             (&words[i])->alphabet[ii] = alphabet[ii];
         }
     }
-
-    //printf("%s\n", (&words[0])->c_letters);
-    //printf("%s\n", (&words[0])->alphabet);
-    //printf("%s\n", (&words[1])->c_letters);
-    //printf("%s\n", (&words[1])->alphabet);
-
-    size_t pl_count, time_limit = 0, lines = 0, len = 0, equal[2];
+    size_t pl_count, lines = 0, len = 0, equal[2];
+    double time_limit = 0;
     char time_mode, tip, listuser;
     char *line = NULL;
     ssize_t read;
@@ -152,7 +146,7 @@ int main(){
     SS fUserdata = fopen(".\\userdata.csv", "r+");
     fseek(SS fUserdata, 0, SEEK_END);
 
-    if (fWords == NULL || fUser == NULL) return 0;
+    if (fWords == NULL || fUser == NULL || SS fUserdata == NULL) return 0;
 
     srand(time(NULL));
 
@@ -260,7 +254,7 @@ int main(){
 
     if( time_mode == 'j' ){
         printf("Gebe die Laenge in Minuten ein\n> ");
-        scanf("%d", &time_limit);
+        scanf("%lf", &SS time_limit);
     }
 
     //printf("anz: %d\npl1: %s\npl2 %s\nmode: %c\nlimit: %d\n", pl_count, player1, player2, time_mode, time_limit);
@@ -308,11 +302,12 @@ int main(){
     SS c_tries[0] = 0, SS c_tries[1] = 0;
     SS tries[0] = 0, SS tries[1] = 0;
     SS complete[0] = 0,SS complete[1] = 0;
+    SS correct[0] = 0, SS correct[1] = 0;
     size_t correct = 0, complete = 1;
 
     system("cls");
 
-    HANDLE thread = CreateThread(NULL, 0, Thread, (void*)time_limit, 0, NULL);
+    HANDLE thread = CreateThread(NULL, 0, Thread, NULL, 0, NULL);
     
     while(1){
         correct = 0, complete = 1;
@@ -340,6 +335,7 @@ int main(){
                     WS c_letters[i] = tip;
                     correct = 1;
                 }
+                if(correct == 1) SS correct[ SS mode ]++;
             
             WS alphabet[ at - 1 ] = '0';
             SS letter[ SS mode ]++;
@@ -392,7 +388,7 @@ int main(){
         printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
     }
     if( complete == 1 && SS mode == 1 && pl_count == 2){
-        printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
+        printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
     }
     if( complete == 1 && SS mode == 0 && pl_count == 1){
         printf("\n\nUeberlebt\n");
