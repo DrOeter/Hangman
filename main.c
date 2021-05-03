@@ -119,7 +119,6 @@ size_t find_c(char *in, ssize_t size, char c){                                 /
             break;
         }
     }
-
     if(i == 0) return 0;
     else return count + 1;
 }
@@ -174,8 +173,6 @@ int main(){
     ssize_t read;
     equal[0]=0,equal[1]=0;
 
-   
-
     FILE *fWords = fopen(".\\words", "r");
     FILE *fUser = fopen(".\\user", "r+");
     SS fUserdata = fopen(".\\userdata.csv", "r+");
@@ -221,8 +218,6 @@ int main(){
             printf("Benutzer nicht gefunden!\n");
             listuser = 'n';
         }
-
-
     }
     else if(pl_count == 2 && listuser == 'j'){                                 //if two users wants to list all users
         char user1[20], user2[20];
@@ -309,7 +304,6 @@ int main(){
 
     int num = (rand() % (lines - 0 + 1)) + 0;                                  //get random number between 0 and number of lines
     lines = 0;
-
 
     while ((read = getline(&line, &len, fWords)) != -1) {                      //read lines from words file until the line number matches the random number
         for(int i=0; i < read;i++)                                             //assign line to other memory
