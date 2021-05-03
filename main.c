@@ -39,8 +39,9 @@ DWORD WINAPI Thread(void* data) {
             used_letters[ii] = toupper(WS used_letters[i]);
             used_letters[ii + 1] = ' '; 
         }      
-        for(int i=0; i < strlen(WS used_letters);i++)
+        for(int i=0; i < strlen(WS used_letters);i++){
             if(WS c_letters[i] != '_') WS c_letters[i] = toupper(WS c_letters[i]);
+        }
 
         system("cls");
         if(SS mode == 0)printf("Spieler %d %s\n", SS mode + 1, SS player1);
@@ -50,7 +51,10 @@ DWORD WINAPI Thread(void* data) {
         printf("%s\n", WS c_letters);
         printf("__________________________\n\n");
         printf("Benutzte Buchstaben: %s\nVersuche: %d\nKorrekte Versuche: %d\n", used_letters, SS tries[ SS mode ], SS c_tries[ SS mode ]);
-        printf("Vergangene Zeit: %ld\n> ", (later - now));
+        printf("Vergangene Zeit: %ld\n", (later - now));
+        if(SS pl_count == 1) printf("Mache einen Tipp\n> ");
+        if(SS pl_count == 2 && SS mode == 0) printf("%s mache einen Tipp\n> ", SS player1);
+        if(SS pl_count == 2 && SS mode == 1) printf("%s mache einen Tipp\n> ", SS player2);
 
         if(signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {
             if(SS pl_count == 1) printf("\n\nZeitlimit ueberschritten\nVerloren :(");
@@ -67,7 +71,7 @@ DWORD WINAPI Thread(void* data) {
             fclose(SS fUserdata);
             exit(0);
         }        
-        if(signal == 1 && SS time_limit == 0) {
+        if(signal == 1) {
             if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
             if(SS pl_count == 2){
                // printf("werte: %d %d %d\n",SS mode, SS complete[0], SS complete[1]);
@@ -125,7 +129,44 @@ size_t find_c(char *in, ssize_t size, char c){
     else return count + 1;
 }
 
+char *rot13(char *str) {
+  for (int i = 0; '\0' != str[i]; i++) {
+    char c = *(str + i);
+    if (('a' <= c && 'n' > c) || ('A' <= c && 'N' > c)) {
+      // a-m
+      *(str + i) += 13;
+    } else if (('n' <= c && 'z' >= c) || ('N' <= c && 'Z' >= c)) {
+      // n-z
+      *(str + i) -= 13;
+    }
+  }
+  return str;
+}
+
+void encryptFile(){
+    FILE *fWords = fopen(".\\words", "r+");
+    FILE *fPlain = fopen(".\\plainwords", "r");
+    ssize_t read;
+    size_t len = 0;
+    char *line = malloc( MAX );
+    if (fWords == NULL || fPlain == NULL ) return;
+    fseek(fWords, 0, SEEK_END);
+
+    while ((read = getline(&line, &len, fPlain)) != -1) {
+        nullNewline( line );
+        char *enc = rot13( line );
+        printf("%s\n",line);
+        fprintf(fWords,"%s\n", enc);
+    }
+    fclose(fWords);
+    fclose(fPlain);
+    free(line);
+}
+
 int main(){
+    encryptFile();
+
+     printf("penis\n\n");
     char alphabet[26] = "abcdefghijklmnopqrstuvwxyz";
 
     for(int i=0; i < 2;i++){
@@ -136,10 +177,12 @@ int main(){
     }
     size_t pl_count, lines = 0, len = 0, equal[2];
     double time_limit = 0;
-    char time_mode, tip, listuser;
+    char time_mode, tip, listuser, *dec_line = malloc(MAX);
     char *line = NULL;
     ssize_t read;
     equal[0]=0,equal[1]=0;
+
+   
 
     FILE *fWords = fopen(".\\words", "r");
     FILE *fUser = fopen(".\\user", "r+");
@@ -272,7 +315,16 @@ int main(){
     int num = (rand() % (lines - 0 + 1)) + 0;
     lines = 0;
 
+
     while ((read = getline(&line, &len, fWords)) != -1) {
+        for(int i=0; i < read;i++)
+            dec_line[i] = line[i];
+
+        dec_line = rot13( dec_line );
+
+        for(int i=0; i < read;i++)
+            line[i] = dec_line[i];
+
         //printf("%s\n", line);
         if(lines == num) break;
         lines++;
@@ -280,6 +332,7 @@ int main(){
     if(feof(fWords)) goto A;
 
     fclose(fWords);
+    free( dec_line );
 
     line[read - 1]= '\0';
 
@@ -293,8 +346,6 @@ int main(){
         (&words[0])->c_letters[i] = '\0'; 
         (&words[1])->c_letters[i] = '\0';  
     }    
-
-    printf("\n\nrandom: %s num: %d\n", line, num);
 
     SS mode = 0;
     SS letter[0] = 0, SS  letter[1] = 0;
@@ -311,11 +362,6 @@ int main(){
     
     while(1){
         correct = 0, complete = 1;
-        //buchstaben nach alphabet
-        //Versuche und richtige Versuche
-        if(pl_count == 1) printf("Mache einen Tipp\n> ");
-        if(pl_count == 2 && SS mode == 0) printf("Spieler 1 mache einen Tipp\n> ");
-        if(pl_count == 2 && SS mode == 1) printf("Spieler 2 mache einen Tipp\n> ");
         scanf(" %c", &tip);
 
         size_t at = find_c(WS alphabet, 26, tip);
