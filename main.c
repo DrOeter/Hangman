@@ -24,7 +24,7 @@ struct letters{
 struct stat{
     size_t tries[2] ,c_tries[2], letter[2], mode, stage[2], pl_count, complete[2], correct[2], signal;
     double time_limit;
-    char player1[20], player2[20], word[26];
+    char player1[MAX], player2[MAX], word[26];
     FILE *fUserdata;
 }stat;
 
@@ -175,7 +175,6 @@ int main(){
         }
     }
     size_t pl_count, lines = 0, len = 0, equal[2];
-    double time_limit = 0;
     char time_mode, tip, listuser, *dec_line = malloc(MAX);
     char *line = NULL;
     ssize_t read;
@@ -192,16 +191,17 @@ int main(){
 
     srand(time(NULL));
 
-    printf("Hangman Game:\n\nEin oder Zwei Spieler?\n> ");
-    scanf("%d", &pl_count);
-    if(pl_count > 2) { 
-        printf("Ungueltige Spieleranzahl"); 
-        exit(0);
+    while(1){
+        printf("Hangman Game:\n\nEin oder Zwei Spieler?\n> ");
+        scanf("%d", &pl_count);
+        if(pl_count == 1 || pl_count == 2) break;
+    }    
+    while(1){
+        printf("Benutzer anzeigen? (j/n)\n> ");
+        scanf(" %c", &listuser);
+        if(listuser == 'j' || listuser == 'n') break;
     }
     SS pl_count = pl_count;
-    printf("Benutzer anzeigen? (j/n)\n> ");
-    scanf(" %c", &listuser);
-
     data *dat = userArray(fUser);
 
     if(pl_count == 1 && listuser == 'j'){
@@ -290,13 +290,17 @@ int main(){
     }
     
     fclose(fUser);
-    
-    printf("Gegen die Zeit? (j/n)\n> ");
-    scanf(" %c", &time_mode);
-
+    while(1){
+        printf("Gegen die Zeit? (j/n)\n> ");
+        scanf(" %c", &time_mode);
+        if(time_mode == 'j' || time_mode == 'n') break;
+    }
     if( time_mode == 'j' ){
-        printf("Gebe die Laenge in Minuten ein\n> ");
-        scanf("%lf", &SS time_limit);
+        while(1){
+            printf("Gebe die Laenge in Minuten ein\n> ");
+            scanf("%lf", &SS time_limit);
+            if(SS time_limit > 0) break;
+        }
     }
 
     //printf("anz: %d\npl1: %s\npl2 %s\nmode: %c\nlimit: %d\n", pl_count, player1, player2, time_mode, time_limit);
