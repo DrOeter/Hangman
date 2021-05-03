@@ -8,7 +8,7 @@
 
 #define MAX 100
 #define SS (&stat)->                                                           //makes the code look less crowded
-#define WS (&words[ SS mode ])->                                               
+#define WS (&words[ SS mode ])->
 
 typedef struct{                                                                //typedef struct to easily return a 2d char array that contains all users
     char user[MAX][MAX];
@@ -32,13 +32,13 @@ DWORD WINAPI Thread(void* data) {                                              /
     clock_t now = clock();                                                     //store time now
 
     while(1){
-        clock_t later = clock();                                               //store passed time 
+        clock_t later = clock();                                               //store passed time
         char used_letters[26] = "";
         for(int i=0,ii=0; i < strlen(WS used_letters);i++,ii+=2){              //convert letters to uppercase and put a space between
             used_letters[ii] = toupper(WS used_letters[i]);
-            used_letters[ii + 1] = ' '; 
-        }      
-        for(int i=0; i < strlen(WS c_letters);i++){                         //convert letters to uppercase
+            used_letters[ii + 1] = ' ';
+        }
+        for(int i=0; i < strlen(WS c_letters);i++){                            //convert letters to uppercase
             if(WS c_letters[i] != '_') WS c_letters[i] = toupper(WS c_letters[i]);
         }
 
@@ -58,18 +58,18 @@ DWORD WINAPI Thread(void* data) {                                              /
         if(SS signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {                                                         //this if is true if a time limit has been set and the time is up
             if(SS pl_count == 1) printf("\n\nZeitlimit ueberschritten\nVerloren :(");
             if(SS pl_count == 2) printf("\n\nZeitlimit ueberschritten\n");
-            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;Ueberschritten: %ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000); //write statistical data to file for one or two users   
+            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;Ueberschritten: %ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000); //write statistical data to file for one or two users
             if(SS pl_count == 2){
                 fprintf(SS fUserdata, "%s;%s;%d;Spieler 1 Ueberschritten: %ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
                 fprintf(SS fUserdata, "%s;%s;%d;Spieler 2 Ueberschritten: %ld s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
-                if(SS correct[1] < SS correct[0]) printf("\n\nSpieler %s gewinnt!!!\n", SS player1);                                                 //the player who has more correct guesses wins 
+                if(SS correct[1] < SS correct[0]) printf("\n\nSpieler %s gewinnt!!!\n", SS player1);                                                 //the player who has more correct guesses wins
                 if(SS correct[0] < SS correct[1]) printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
                 if(SS correct[0] == SS correct[1] ) printf("\n\nUnentschieden\n");
             }
             fclose(SS fUserdata);
             exit(0);
-        }        
-        if(SS signal == 1) {                                                                                                                         //this if is true if somebody has won 
+        }
+        if(SS signal == 1) {                                                                                                                         //this if is true if somebody has won
             if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);                 //write statistical data to file for one or two users
             if(SS pl_count == 2){
                 if(SS complete[0] == 1 ) fprintf(SS fUserdata, "%s;%s;%d;%ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
@@ -85,11 +85,11 @@ DWORD WINAPI Thread(void* data) {                                              /
 }
 
 data *userArray(FILE *fp){                                                     //puts each line of a file into 2d char array and returns it
-    char test[MAX] = "yee",buff[MAX] = "eey";                                  //unequal strings 
+    char test[MAX] = "yee",buff[MAX] = "eey";                                  //unequal strings
     data *out = malloc( sizeof *out);
     out->pos = 0;
-    
-    while( strcmp(test,buff) ){                                                //read from file as long as the old string is unequal with the new string 
+
+    while( strcmp(test,buff) ){                                                //read from file as long as the old string is unequal with the new string
         for(int i=0;i < MAX;i++)
             test[i] = buff[i];
 
@@ -109,12 +109,12 @@ void nullNewline(char *in){                                                    /
     }
 }
 
-size_t find_c(char *in, ssize_t size, char c){                                 //finds char in string and returns where it was found 
-    size_t count = 0;                                                          //0 if not found 
+size_t find_c(char *in, ssize_t size, char c){                                 //finds char in string and returns where it was found
+    size_t count = 0;                                                          //0 if not found
     int i = 0;
 
     for(;count < size; count++ ){
-        if(in[count] == c){ 
+        if(in[count] == c){
             i = 1;
             break;
         }
@@ -148,8 +148,7 @@ void encryptFile(){                                                            /
 
     while ((read = getline(&line, &len, fPlain)) != -1) {                      //getline if not eof
         nullNewline( line );
-        char *enc = rot13( line );                                             //encrypt 
-        printf("%s\n",line);
+        char *enc = rot13( line );                                             //encrypt
         fprintf(fWords,"%s\n", enc);                                           //append in file
     }
     fclose(fWords);
@@ -186,7 +185,7 @@ int main(){
         printf("Hangman Game:\n\nEin oder Zwei Spieler?\n> ");
         scanf("%d", &pl_count);
         if(pl_count == 1 || pl_count == 2) break;
-    }    
+    }
     while(1){
         printf("Benutzer anzeigen? (j/n)\n> ");
         scanf(" %c", &listuser);
@@ -196,24 +195,24 @@ int main(){
     data *dat = userArray(fUser);
 
     if(pl_count == 1 && listuser == 'j'){                                      //if one user wants to list all users
-        const char user[20];
+        char user[20];
 
-        for(int i=0;i < dat->pos - 1;i++){                                     //list users  
+        for(int i=0;i < dat->pos - 1;i++){                                     //list users
             nullNewline( dat->user[i] );
             printf("%s\n" , dat->user[i]);
         }
 
-        printf("Benutzer auswaehlen\n> ");                                     
-        scanf("%s", &user);
+        printf("Benutzer auswaehlen\n> ");
+        scanf("%s", (char*)&user);
 
         int equal = 0;
-        for(int i=0;i < dat->pos - 1 ;i++){                                    //if username is found it is set if not listuser is set to 'n' which allows the user to enter a new username 
+        for(int i=0;i < dat->pos - 1 ;i++){                                    //if username is found it is set if not listuser is set to 'n' which allows the user to enter a new username
             if(strcmp(user, dat->user[i]) == 0){
                 for(int ii=0;ii < 20;ii++)
                     SS player1[ii] = dat->user[i][ii];
                 equal = 1;
             }
-        }    
+        }
         if(equal == 0){
             printf("Benutzer nicht gefunden!\n");
             listuser = 'n';
@@ -228,10 +227,10 @@ int main(){
         }
 
         printf("Benutzer 1 auswaehlen\n> ");
-        scanf("%s", &user1);
+        scanf("%s", (char*)&user1);
 
         printf("Benutzer 2 auswaehlen\n> ");
-        scanf("%s", &user2);
+        scanf("%s", (char*)&user2);
 
         for(int i=0;i < dat->pos - 1 ;i++){                                    //if username is found it is set if not listuser is set to 'n' which allows the user to enter a new username
             if(strcmp(user1, dat->user[i]) == 0){
@@ -239,19 +238,19 @@ int main(){
                     SS player1[ii] = dat->user[i][ii];
                 equal[0] = 1;
             }
-        }    
+        }
         for(int i=0;i < dat->pos - 1 ;i++){
             if(strcmp(user2, dat->user[i]) == 0){
                 for(int ii=0;ii < 20;ii++)
                     SS player2[ii] = dat->user[i][ii];
                 equal[1] = 1;
             }
-        }   
+        }
 
         if(equal[0] == 0){
             printf("Benutzer 1 nicht gefunden!\n");
             listuser = 'n';
-        } 
+        }
         else if(equal[1] == 0){
             printf("Benutzer 2 nicht gefunden!\n");
             listuser = 'n';
@@ -262,24 +261,24 @@ int main(){
 
     if(pl_count == 1 && listuser == 'n'){                                      //enter new username or names and append it in user file
         printf("Gebe Spielernamen ein\n> ");
-        scanf("%s", &SS player1);
+        scanf("%s", (char*)&SS player1);
         fprintf (fUser, "%s\n", SS player1);
     }
     else if(pl_count == 2 && listuser == 'n'){
         if(equal[0] == 0){
             printf("Gebe Name für Spieler 1 ein\n> ");
-            scanf("%s", &SS player1);
+            scanf("%s", (char*)&SS player1);
         }
         if(equal[1] == 0){
             printf("Gebe Name für Spieler 2 ein\n> ");
-            scanf("%s", &SS player2);
+            scanf("%s", (char*)&SS player2);
         }
         fprintf (fUser, "%s\n", SS player1);
         fprintf (fUser, "%s\n", SS player2);
     }
-    
+
     fclose(fUser);
-    while(1){                                                                  //ask for information as long as it is wrong                 
+    while(1){                                                                  //ask for information as long as it is wrong
         printf("Gegen die Zeit? (j/n)\n> ");
         scanf(" %c", &time_mode);
         if(time_mode == 'j' || time_mode == 'n') break;
@@ -332,14 +331,14 @@ int main(){
         line[i] = tolower( line[i] );
 
     for(ssize_t i = read - 1; i < 26;i++){
-        (&words[0])->c_letters[i] = '\0'; 
-        (&words[1])->c_letters[i] = '\0';  
-    }    
+        (&words[0])->c_letters[i] = '\0';
+        (&words[1])->c_letters[i] = '\0';
+    }
 
     SS mode = 0;                                                               //initialize variables
     SS signal = 0;
     SS letter[0] = 0, SS  letter[1] = 0;
-    SS stage[0] = 1, SS stage[1] = 1; 
+    SS stage[0] = 1, SS stage[1] = 1;
     SS c_tries[0] = 0, SS c_tries[1] = 0;
     SS tries[0] = 0, SS tries[1] = 0;
     SS complete[0] = 0,SS complete[1] = 0;
@@ -348,34 +347,35 @@ int main(){
 
     system("cls");
 
-    HANDLE thread = CreateThread(NULL, 0, Thread, NULL, 0, NULL);              //start thread 
-    
+    CreateThread(NULL, 0, Thread, NULL, 0, NULL);                              //start thread
+
     while(1){
         correct = 0, complete = 1;
-        while(1){    
-            scanf(" %c", &tip);                                                
+        while(1){
+            scanf(" %c", &tip);
             if( tip >= 'a' && tip <= 'z' ) break;
         }
 
         size_t at = find_c(WS alphabet, 26, tip);                              //look if the tip is already used
         size_t guess = find_c(line, read, tip);                                //look if the tip is in the word to be guessed
-        
+
         if( guess > 0 ) SS c_tries[ SS mode ]++;                               //count correct tries
         SS tries[ SS mode ]++;                                                 //count tries
-        
+
         if( WS alphabet[ at - 1 ] == '0' || at == 0 ) {                        //if that position is already '0' jump to the start
             printf("Buchstabe wurde schon benutzt!\n");
             continue;
         }
         else if( WS alphabet[ at - 1 ] != '0' ) {                              //if the letter hasn't been used collect with used_letters
             WS used_letters[SS letter[ SS mode ]] = WS alphabet[ at - 1 ];
-            for(int i=0; i < read;i++)                                         //look if the tip is in the word to be guessed and if it is collect it with c_letters
+            for(int i=0; i < read;i++){                                        //look if the tip is in the word to be guessed and if it is collect it with c_letters
                 if(line[i] == tip){
                     WS c_letters[i] = tip;
                     correct = 1;
                 }
-                if(correct == 1) SS correct[ SS mode ]++;                      //count the correct tips for each user
-            
+            }
+            if(correct == 1) SS correct[ SS mode ]++;                          //count the correct tips for each user
+
             WS alphabet[ at - 1 ] = '0';
             SS letter[ SS mode ]++;
         }
@@ -384,23 +384,23 @@ int main(){
         }
 
         if(correct == 0) SS stage[ SS mode ]++;                                //advance the hangman figure for each user
-        
+
         if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 2) {       //decide who won or lost the game and break the loop
-            SS complete[1] = 1; 
+            SS complete[1] = 1;
             break;
         }
         if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2) {
-            SS complete[0] = 1; 
+            SS complete[0] = 1;
             break;
         }
         if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1) break;
 
         if( complete == 1 && SS mode == 0 && pl_count == 2) {
-            SS complete[0] = 1; 
+            SS complete[0] = 1;
             break;
         }
         if( complete == 1 && SS mode == 1 && pl_count == 2) {
-            SS complete[1] = 1; 
+            SS complete[1] = 1;
             break;
         }
         if( complete == 1 && SS mode == 0 && pl_count == 1) break;
