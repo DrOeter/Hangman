@@ -50,16 +50,18 @@ DWORD WINAPI Thread(void* data) {                                              /
         printf("%s\n", WS c_letters);                                          //print correct letters
         printf("__________________________\n\n");
         printf("Benutzte Buchstaben: %s\nVersuche: %d\nKorrekte Versuche: %d\n", used_letters, SS tries[ SS mode ], SS c_tries[ SS mode ]);          //print statistical data
-        printf("Vergangene Zeit: %ld s\n", (later - now) / 1000);                                                                                             //print passed time
+        printf("Vergangene Zeit: %ld s\n", (later - now) / 1000);                                                                                    //print passed time
         if(SS pl_count == 1) printf("Mache einen Tipp\n> ");
         if(SS pl_count == 2 && SS mode == 0) printf("%s mache einen Tipp\n> ", SS player1);
         if(SS pl_count == 2 && SS mode == 1) printf("%s mache einen Tipp\n> ", SS player2);
 
-        if(SS signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {                                                         //this if is true if a time limit has been set and the time is up
-            if(SS pl_count == 1) printf("\n\nZeitlimit ueberschritten\nVerloren :(");
-            if(SS pl_count == 2) printf("\n\nZeitlimit ueberschritten\n");
-            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;Ueberschritten: %ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000); //write statistical data to file for one or two users
+        if(SS signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {  
+            if(SS pl_count == 1) {
+                printf("\n\nZeitlimit ueberschritten\nVerloren :(");
+                fprintf(SS fUserdata, "%s;%s;%d;Ueberschritten: %ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);                 //write statistical data to file for one or two users
+            }    
             if(SS pl_count == 2){
+                printf("\n\nZeitlimit ueberschritten\n");
                 fprintf(SS fUserdata, "%s;%s;%d;Spieler 1 Ueberschritten: %ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
                 fprintf(SS fUserdata, "%s;%s;%d;Spieler 2 Ueberschritten: %ld s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
                 if(SS correct[1] < SS correct[0]) printf("\n\nSpieler %s gewinnt!!!\n", SS player1);                                                 //the player who has more correct guesses wins
@@ -70,7 +72,7 @@ DWORD WINAPI Thread(void* data) {                                              /
             exit(0);
         }
         if(SS signal == 1) {                                                                                                                         //this if is true if somebody has won
-            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);                 //write statistical data to file for one or two users
+            if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);                //write statistical data to file for one or two users
             if(SS pl_count == 2){
                 if(SS complete[0] == 1 ) fprintf(SS fUserdata, "%s;%s;%d;%ld s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
                 if(SS complete[1] == 1 ) fprintf(SS fUserdata, "%s;%s;%d;%ld s\n", SS player2, SS word, SS tries[ 1 ], (later - now) / 1000);
