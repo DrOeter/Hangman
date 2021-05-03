@@ -9,7 +9,6 @@
 #define MAX 100
 #define SS (&stat)->
 #define WS (&words[ SS mode ])->
-size_t signal = 0;
 
 typedef struct{
     char user[MAX][MAX];
@@ -23,7 +22,7 @@ struct letters{
 }words[2];
 
 struct stat{
-    size_t tries[2] ,c_tries[2], letter[2], mode, stage[2], pl_count, complete[2], correct[2];
+    size_t tries[2] ,c_tries[2], letter[2], mode, stage[2], pl_count, complete[2], correct[2], signal;
     double time_limit;
     char player1[20], player2[20], word[26];
     FILE *fUserdata;
@@ -56,7 +55,7 @@ DWORD WINAPI Thread(void* data) {
         if(SS pl_count == 2 && SS mode == 0) printf("%s mache einen Tipp\n> ", SS player1);
         if(SS pl_count == 2 && SS mode == 1) printf("%s mache einen Tipp\n> ", SS player2);
 
-        if(signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {
+        if(SS signal == 0 && SS time_limit > 0 && (SS time_limit * 60000) < (later - now)) {
             if(SS pl_count == 1) printf("\n\nZeitlimit ueberschritten\nVerloren :(");
             if(SS pl_count == 2) printf("\n\nZeitlimit ueberschritten\n");
             if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;Ueberschritten: %d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
@@ -71,7 +70,7 @@ DWORD WINAPI Thread(void* data) {
             fclose(SS fUserdata);
             exit(0);
         }        
-        if(signal == 1) {
+        if(SS signal == 1) {
             if(SS pl_count == 1) fprintf(SS fUserdata, "%s;%s;%d;%d s\n", SS player1, SS word, SS tries[ 0 ], (later - now) / 1000);
             if(SS pl_count == 2){
                // printf("werte: %d %d %d\n",SS mode, SS complete[0], SS complete[1]);
@@ -348,6 +347,7 @@ int main(){
     }    
 
     SS mode = 0;
+    SS signal = 0;
     SS letter[0] = 0, SS  letter[1] = 0;
     SS stage[0] = 1, SS stage[1] = 1; 
     SS c_tries[0] = 0, SS c_tries[1] = 0;
@@ -418,7 +418,7 @@ int main(){
         }
     }
 
-    signal = 1;
+    SS signal = 1;
     Sleep(1000);
 
      if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 2){
