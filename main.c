@@ -315,7 +315,6 @@ int main(){
         for(int i=0; i < read;i++)                                             //reassign to orignal memory
             line[i] = dec_line[i];
 
-        //printf("%s\n", line);
         if(lines == num) break;
         lines++;
     }
