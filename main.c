@@ -418,19 +418,19 @@ int main(){
     Sleep(1000);                                                               //wait for the last printf's of the thread
 
     if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 2){            //print the player who won or as singleplayer print whether the player survived
-        printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
+        printf("\n\n%s gewinnt!!!\n", SS player2);
     }
     else if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2){
-        printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
+        printf("\n\n%s gewinnt!!!\n", SS player1);
     }
     else if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1){
         printf("\n\nVerloren :(\n");
     }
     else if( complete == 1 && SS mode == 0 && pl_count == 2){
-        printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
+        printf("\n\n%s gewinnt!!!\n", SS player1);
     }
     else if( complete == 1 && SS mode == 1 && pl_count == 2){
-        printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
+        printf("\n\n%s gewinnt!!!\n", SS player2);
     }
     else if( complete == 1 && SS mode == 0 && pl_count == 1){
         printf("\n\nUeberlebt\n");
