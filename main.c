@@ -50,7 +50,7 @@ DWORD WINAPI Thread(void* data) {                                              /
         printf("%s\n", WS c_letters);                                          //print correct letters
         printf("__________________________\n\n");
         printf("Benutzte Buchstaben: %s\nVersuche: %d\nKorrekte Versuche: %d\n", used_letters, SS tries[ SS mode ], SS c_tries[ SS mode ]);          //print statistical data
-        printf("Vergangene Zeit: %ld s\n", (later - now) / 1000);                                                                                    //print passed time
+        printf("Vergangene Zeit: %ld s\n\n", (later - now) / 1000);                                                                                    //print passed time
         if(SS pl_count == 1) printf("Mache einen Tipp\n> ");
         if(SS pl_count == 2 && SS mode == 0) printf("%s mache einen Tipp\n> ", SS player1);
         if(SS pl_count == 2 && SS mode == 1) printf("%s mache einen Tipp\n> ", SS player2);
@@ -268,11 +268,11 @@ int main(){
     }
     else if(pl_count == 2 && listuser == 'n'){
         if(equal[0] == 0){
-            printf("Gebe Name für Spieler 1 ein\n> ");
+            printf("Gebe Name fuer Spieler 1 ein\n> ");
             scanf("%s", (char*)&SS player1);
         }
         if(equal[1] == 0){
-            printf("Gebe Name für Spieler 2 ein\n> ");
+            printf("Gebe Name fuer Spieler 2 ein\n> ");
             scanf("%s", (char*)&SS player2);
         }
         fprintf (fUser, "%s\n", SS player1);
@@ -365,6 +365,8 @@ int main(){
         SS tries[ SS mode ]++;                                                 //count tries
 
         if( WS alphabet[ at - 1 ] == '0' || at == 0 ) {                        //if that position is already '0' jump to the start
+            if( guess > 0 ) SS c_tries[ SS mode ]--;
+            SS tries[ SS mode ]--;
             printf("Buchstabe wurde schon benutzt!\n");
             continue;
         }
@@ -391,47 +393,46 @@ int main(){
             SS complete[1] = 1;
             break;
         }
-        if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2) {
+        else if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2) {
             SS complete[0] = 1;
             break;
         }
-        if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1) break;
+        else if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1) break;
 
-        if( complete == 1 && SS mode == 0 && pl_count == 2) {
+        else if( complete == 1 && SS mode == 0 && pl_count == 2) {
             SS complete[0] = 1;
             break;
         }
-        if( complete == 1 && SS mode == 1 && pl_count == 2) {
+        else if( complete == 1 && SS mode == 1 && pl_count == 2) {
             SS complete[1] = 1;
             break;
         }
-        if( complete == 1 && SS mode == 0 && pl_count == 1) break;
+        else if( complete == 1 && SS mode == 0 && pl_count == 1) break;
 
         if( pl_count == 2 && correct == 0 ){                                   //if there are two players and the tip was incorrect then switch between players 1 and 2
             if(SS mode == 0) SS mode = 1;
             else if(SS mode == 1) SS mode = 0;
         }
     }
-
     SS signal = 1;                                                             //signal to the thread that the game has been completed
     Sleep(1000);                                                               //wait for the last printf's of the thread
 
-     if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 2){           //print the player who won or as singleplayer print whether the player survived
+    if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 2){            //print the player who won or as singleplayer print whether the player survived
         printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
     }
-    if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2){
+    else if( SS stage [SS mode] == 11 && SS mode == 1 && pl_count == 2){
         printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
     }
-    if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1){
+    else if( SS stage [SS mode] == 11 && SS mode == 0 && pl_count == 1){
         printf("\n\nVerloren :(\n");
     }
-    if( complete == 1 && SS mode == 0 && pl_count == 2){
+    else if( complete == 1 && SS mode == 0 && pl_count == 2){
         printf("\n\nSpieler %s gewinnt!!!\n", SS player1);
     }
-    if( complete == 1 && SS mode == 1 && pl_count == 2){
+    else if( complete == 1 && SS mode == 1 && pl_count == 2){
         printf("\n\nSpieler %s gewinnt!!!\n", SS player2);
     }
-    if( complete == 1 && SS mode == 0 && pl_count == 1){
+    else if( complete == 1 && SS mode == 0 && pl_count == 1){
         printf("\n\nUeberlebt\n");
     }
 
